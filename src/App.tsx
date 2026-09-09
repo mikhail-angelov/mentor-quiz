@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useState } from 'react'
-import { QUESTIONS, QUIZ_SUBTITLE, QUIZ_TITLE, TYPES } from './data'
+import { QUESTIONS, QUIZ_SUBTITLE, QUIZ_TITLE, TYPES, type Answer } from './data'
 
 type Phase = 'intro' | 'quiz' | 'result'
+
+// Тасование Фишера–Йетса: порядок ответов меняется при каждом прохождении
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('intro')
   const [qIndex, setQIndex] = useState(0)
   const [picked, setPicked] = useState<number | null>(null) // выбранный ответ на ТЕКУЩИЙ вопрос
   const [answers, setAnswers] = useState<number[]>([]) // typeId по каждому вопросу
+  // перемешанный порядок ответов для каждого вопроса (фиксируется на всё прохождение)
+  const [shuffled, setShuffled] = useState<Answer[][]>([])
 
   const total = QUESTIONS.length
   const question = QUESTIONS[qIndex]
@@ -16,13 +28,14 @@ export default function App() {
     setAnswers([])
     setQIndex(0)
     setPicked(null)
+    setShuffled(QUESTIONS.map((q) => shuffle(q.answers)))
     setPhase('quiz')
   }
 
   const goNext = () => {
     if (picked === null) return
     const next = [...answers]
-    next[qIndex] = question.answers[picked].typeId // храним ТИП, а не индекс
+    next[qIndex] = shuffled[qIndex][picked].typeId // храним ТИП, а не индекс
     setAnswers(next)
     setPicked(null)
     if (qIndex + 1 < total) setQIndex(qIndex + 1)
@@ -34,11 +47,11 @@ export default function App() {
     const prev = qIndex - 1
     const prevTypeId = answers[prev]
     setQIndex(prev)
-    // восстанавливаем выбор: индекс ответа в прошлом вопросе с таким же типом
+    // восстанавливаем выбор: индекс ответа в перемешанном списке прошлого вопроса
     setPicked(
       prevTypeId === undefined
         ? null
-        : QUESTIONS[prev].answers.findIndex((a) => a.typeId === prevTypeId),
+        : shuffled[prev].findIndex((a) => a.typeId === prevTypeId),
     )
   }
 
@@ -75,11 +88,11 @@ export default function App() {
           <h2>{question.text}</h2>
 
           <div className="answers">
-            {question.answers.map((a, i) => {
+            {shuffled[qIndex].map((a, i) => {
               const sel = picked === i
               return (
                 <button
-                  key={i}
+                  key={a.typeId}
                   className={`answer ${sel ? 'selected' : ''}`}
                   onClick={() => setPicked(i)}
                 >
