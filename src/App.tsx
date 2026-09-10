@@ -146,7 +146,7 @@ function Result({ answers, onRestart }: { answers: number[]; onRestart: () => vo
 
   return (
     <section className="card result">
-      <p className="result-kicker">Твой ведущий тип наставника</p>
+      <p className="result-kicker">Ваш ведущий тип наставника</p>
 
       <div className="hero" style={{ ['--c' as string]: main.color }}>
         <div className="hero-emoji">
@@ -167,7 +167,7 @@ function Result({ answers, onRestart }: { answers: number[]; onRestart: () => vo
       <p className="hero-desc">{main.description}</p>
 
       <div className="composition">
-        <h3>Твой состав наставника</h3>
+        <h3>Ваш состав наставника</h3>
         {scores.map(({ type, score }) => {
           const pct = total ? Math.round((score / total) * 100) : 0
           const isLead = type.id === main.id
