@@ -23,7 +23,7 @@ export interface MentorType {
   image?: string // иллюстрация (URL или путь). Пока пусто — рендерится emoji
 }
 
-export const QUIZ_TITLE = 'Ваш тип наставника в Обучении служением'
+export const QUIZ_TITLE = 'Ваш тип наставника'
 export const QUIZ_SUBTITLE =
   'Ответьте на 10 вопросов — узнайте свой ведущий тип наставника.'
 
